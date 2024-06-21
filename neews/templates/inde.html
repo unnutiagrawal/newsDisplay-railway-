@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="macbook-air">
+        <div class="div">
+            <div class="overlap">
+                <div class="text-wrapper">Daily News</div>
+                <div class="text-wrapper-2">Railways</div>
+            </div>
+            <div class="text-wrapper-3">Choose your category</div>
+            <img class="rectangle" id="indianRailways"
+                src="https://t3.ftcdn.net/jpg/04/54/02/88/360_F_454028890_YAM5KPK9MmuSRG9ZrffVLIeuApja5DT2.jpg"
+                onclick="showNews('indian')" />
+            <div class="overlap-group">
+                <img class="image" id="globalRailways"
+                    src="https://upload.wikimedia.org/wikipedia/en/8/83/Indian_Railways.svg"
+                    onclick="showNews('global')" />
+            </div>
+            <div class="text-wrapper-4">Indian Railway</div>
+            <div class="text-wrapper-5">Global Railway</div>
+            <div id="indianNews" class="hidden">
+                <h2>Indian Railway News</h2>
+                <div id="indianNewsContent"></div>
+            </div>
+            <div id="globalNews" class="hidden">
+                <h2>Global Railway News</h2>
+                <div id="globalNewsContent"></div>
+            </div>
+            <div class="group">
+                <div class="div-wrapper">
+                    <p class="p">2024 Daily News. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // function showNews(category) {
+        //     if (category === 'indian') {
+        //         document.getElementById('indianNews').classList.remove('hidden');
+        //         document.getElementById('globalNews').classList.add('hidden');
+        //         fetchNews('indian');
+        //     } else if (category === 'global') {
+        //         document.getElementById('indianNews').classList.add('hidden');
+        //         document.getElementById('globalNews').classList.remove('hidden');
+        //         fetchNews('global');
+        //     }
+        // }
+
+        function showNews(category) {
+        let data = {
+            'category': category
+        };
+        if (category === 'indian') {
+            document.getElementById('indianNews').classList.remove('hidden');
+            document.getElementById('globalNews').classList.add('hidden');
+            $.ajax({
+                url: "{% url 'fetch_indian_railway_news' %}",
+                method: "POST",
+                data: data,
+                dataType: 'json',
+                success: function (response) {
+                    let content = '';
+                    response.forEach(item => {
+                        content += `<p><a href="${item.link}" target="_blank">${item.title}</a></p>`;
+                    });
+                    document.getElementById('indianNewsContent').innerHTML = content;
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching Indian news:', error);
+                }
+            });
+        } else if (category === 'global') {
+            document.getElementById('indianNews').classList.add('hidden');
+            document.getElementById('globalNews').classList.remove('hidden');
+            $.ajax({
+                url: "{% url 'fetch_global_railway_news' %}",
+                method: "GET",
+                dataType: 'json',
+                success: function (response) {
+                    let content = '';
+                    response.forEach(item => {
+                        content += `<p><a href="${item.link}" target="_blank">${item.title}</a></p>`;
+                    });
+                    document.getElementById('globalNewsContent').innerHTML = content;
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching global news:', error);
+                }
+            });
+        }
+    }
+
+    </script>
+</body>
+
+</html>

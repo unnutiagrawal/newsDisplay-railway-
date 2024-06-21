@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway News</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Railway News</h2>
+        <div class="text-center">
+            <button class="btn btn-primary" onclick="showNews('indian')">Show Indian Railway News</button>
+            <button class="btn btn-secondary" onclick="showNews('global')">Show Global Railway News</button>
+        </div>
+        <div id="indianNews" class="mt-4 hidden">
+            <h3>Indian Railway News</h3>
+            <table id="indianNewsTable" class="display">
+                <thead>
+                    <tr>
+                        <th width="auto">#</th>
+                        <th width="auto">Title</th>
+                        <th width="auto">Link</th>
+                    </tr>
+                </thead>
+                
+                <tbody id="indianNewsContent">
+                    {% for data in object %}
+                    <tr id="{{ data.id }}">
+                    
+                        <td>${index + 1}</td>
+                        <td>${item.title}</td>
+                        <td><a href="${item.link}" target="_blank">Read more</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="globalNews" class="mt-4 hidden">
+            <h3>Global Railway News</h3>
+            <table id="globalNewsTable" class="display">
+                <thead>
+                    <tr>
+                        <th width="auto">#</th>
+                        <th width="auto">Title</th>
+                        <th width="auto">Link</th>
+                    </tr>
+                </thead>
+                <tbody id="globalNewsContent">
+                    {% for data in object %}
+                    <tr id="{{ data.id }}">
+                    
+                        <td>${index + 1}</td>
+                        <td>${item.title}</td>
+                        <td><a href="${item.link}" target="_blank">Read more</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script>
+        function showNews(category) {
+            if (category === 'indian') {
+                document.getElementById('indianNews').classList.remove('hidden');
+                document.getElementById('globalNews').classList.add('hidden');
+                $.ajax({
+                    url: "{% url 'fetch_indian_railway_news' %}",
+                    method: "GET",
+                    success: function (response) {
+                        let content = '';
+                        response.forEach((item, index) => {
+                            content += `<tr><td>${index + 1}</td><td>${item.title}</td><td><a href="${item.link}" target="_blank">Read more</a></td></tr>`;
+                        });
+                        $('#indianNewsContent').html(content);
+                        $('#indianNewsTable').DataTable().destroy(); // Destroy any existing DataTable instance
+                        $('#indianNewsTable').DataTable(); // Reinitialize DataTable
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching Indian news:', error);
+                    }
+                });
+            } else if (category === 'global') {
+                document.getElementById('indianNews').classList.add('hidden');
+                document.getElementById('globalNews').classList.remove('hidden');
+                $.ajax({
+                    url: "{% url 'fetch_global_railway_news' %}",
+                    method: "GET",
+                    success: function (response) {
+                        let content = '';
+                        response.forEach((item, index) => {
+                            content += `<tr><td>${index + 1}</td><td>${item.title}</td><td><a href="${item.link}" target="_blank">Read more</a></td></tr>`;
+                        });
+                        $('#globalNewsContent').html(content);
+                        $('#globalNewsTable').DataTable().destroy(); // Destroy any existing DataTable instance
+                        $('#globalNewsTable').DataTable(); // Reinitialize DataTable
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching global news:', error);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
